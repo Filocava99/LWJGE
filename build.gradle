@@ -1,0 +1,83 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
+
+project.ext.lwjglVersion = "3.2.3"
+project.ext.jomlVersion = "1.9.25"
+
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+        def osArch = System.getProperty("os.arch")
+        project.ext.lwjglNatives = osArch.startsWith("arm") || osArch.startsWith("aarch64")
+                ? "natives-linux-${osArch.contains("64") || osArch.startsWith("armv8") ? "arm64" : "arm32"}"
+                : "natives-linux"
+        break
+    case OperatingSystem.MAC_OS:
+        project.ext.lwjglNatives = "natives-macos"
+        break
+    case OperatingSystem.WINDOWS:
+        project.ext.lwjglNatives = System.getProperty("os.arch").contains("64") ? "natives-windows" : "natives-windows-x86"
+        break
+}
+
+group 'it.cubicworldsimulator'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.11
+
+def le_cbchain           = '2.2.2'
+def le_util              = '2.2.2'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'it.cubicworldsimulator.game.Main'
+        attributes "Multi-Release": true
+    }
+}
+
+repositories {
+    maven{
+        url "http://oss.sonatype.org/content/groups/public/"
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url 'https://jitpack.io' }
+        maven { url "https://raw.githubusercontent.com/SpinyOwl/repo/snapshots" }
+        maven { url "https://raw.githubusercontent.com/SpinyOwl/repo/releases" }
+    }
+    mavenCentral()
+
+}
+
+dependencies {
+    // LEGUI - SNAPSHOT - https://github.com/SpinyOwl/legui
+    compile group: 'org.liquidengine', name: 'legui', version: '2.2.2' + '-SNAPSHOT', changing: true;
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    testCompile ('org.junit.jupiter:junit-jupiter:5.6.0')
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.0'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.0'
+    compile "org.snakeyaml:snakeyaml-engine:1.1-SNAPSHOT"
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-assimp"
+    implementation "org.lwjgl:lwjgl-glfw"
+    implementation "org.lwjgl:lwjgl-jemalloc"
+    implementation "org.lwjgl:lwjgl-openal"
+    implementation "org.lwjgl:lwjgl-opengl"
+    implementation "org.lwjgl:lwjgl-stb"
+    runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-assimp::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-jemalloc::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+    implementation "org.joml:joml:${jomlVersion}"
+    implementation "org.lwjgl:lwjgl-nanovg"
+    implementation "org.lwjgl:lwjgl-nfd"
+    runtimeOnly "org.lwjgl:lwjgl-nanovg::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-nfd::$lwjglNatives"
+}
