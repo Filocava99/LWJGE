@@ -23,7 +23,7 @@ switch (OperatingSystem.current()) {
         break
 }
 
-group 'it.cubicworldsimulator'
+group 'org.lwjge'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.11
